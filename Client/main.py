@@ -65,6 +65,7 @@ def train(ip = 0):
         known_names, known_face_encodings = scan_known_people(os.getcwd() + "/database/")
     else:
         # Connect to DB
+        print (" Connectiong to DB ")
 
 # TODO: Convert this into loading a csv/db file of param points
 def scan_known_people(known_people_folder):
