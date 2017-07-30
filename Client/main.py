@@ -66,6 +66,8 @@ def train(ip = 0):
     else:
         # Connect to DB
         print (" Connectiong to DB ")
+    print(" Training complete ")
+    sys.stdout.flush()
 
 # TODO: Convert this into loading a csv/db file of param points
 def scan_known_people(known_people_folder):
@@ -114,10 +116,12 @@ def newUser():
 
 def scanForBarcode():
     #TODO :
+    print (" Not implemented yet ")
 
 def deleteUser():
     # While button pressed is true
     if GPIO.input():
+        print (" Not implemented yet ")
 
 if  __name__ =='__main__':main()
 
