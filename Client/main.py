@@ -62,7 +62,7 @@ def main():
 #
 def train(ip = 0):
     if ip == 0:
-        known_names, known_face_encodings = scan_known_people(os.getcwd() + "/database/")
+        known_names, known_face_encodings = scan_known_people(os.getcwd() + "..//database/")
     else:
         # Connect to DB
         print (" Connectiong to DB ")
