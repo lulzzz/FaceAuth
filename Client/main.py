@@ -28,7 +28,7 @@ def main():
     rawCapture = PiRGBArray(camera, size=(640, 480))
     output = np.empty((240, 320, 3), dtype=np.uint8)
     train()
-    GPIO.setmode(GPIO.BCM)
+    GPIO.setmode(GPIO.BOARD)
     GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     # Recognize faces
