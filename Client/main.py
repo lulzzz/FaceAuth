@@ -79,8 +79,11 @@ def scan_known_people(known_people_folder):
     for file in image_files_in_folder(known_people_folder):
         basename = os.path.splitext(os.path.basename(file))[0]
         img = face_recognition.load_image_file(file)
+        print (" Startign encoding! ")
+        sys.stdout.flush()
         encodings = face_recognition.face_encodings(img)
-
+        print (" Ending encoding! ")
+        sys.stdout.flush()
         if len(encodings) > 1:
             click.echo("WARNING: More than one face found in {}. Only considering the first face.".format(file))
 
@@ -89,6 +92,8 @@ def scan_known_people(known_people_folder):
         else:
             known_names.append(basename)
             known_face_encodings.append(encodings[0])
+        print (" Processed a face! ")
+        sys.stdout.flush()
 
     return known_names, known_face_encodings
 
