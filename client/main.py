@@ -40,6 +40,7 @@ def main():
     global User
     global known_face_encodings
     global known_names
+    name = None
     db = TinyDB('db.json')
     User = Query()
     camera = PiCamera()
@@ -58,8 +59,6 @@ def main():
     GPIO.setup(BUTTON_4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     print2("Setup complete")
     train()
-    obama_image = face_recognition.load_image_file("../database/obama.jpg")
-    obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
     # Recognize faces
     # TODO: Maybe change into that for loop from run.py
@@ -86,14 +85,6 @@ def main():
             #print2(type(face_encoding))
             #print2("Type of known people")
             #print2(type(known_face_encodings[0]))
-            match = face_recognition.compare_faces([obama_face_encoding], face_encoding)
-            print2("match")
-            print2(obama_face_encoding)
-            print2(known_face_encodings[0])
-            match2 = face_recognition.compare_faces([obama_face_encoding], known_face_encodings[0])
-            print2(match)
-            print2(known_face_encodings[0].shape)
-            print2(known_face_encodings[0])
             distance = face_recognition.face_distance(known_face_encodings, face_encoding)
             print2("Distance")
             print2(distance)
