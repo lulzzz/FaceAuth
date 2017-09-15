@@ -58,6 +58,8 @@ def main():
     GPIO.setup(BUTTON_4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     print2("Setup complete")
     train()
+    obama_image = face_recognition.load_image_file("../database/obama.jpg")
+    obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
     # Recognize faces
     # TODO: Maybe change into that for loop from run.py
@@ -79,12 +81,19 @@ def main():
         # Loop over each face found in the frame to see if it's someone we know.
         for face_encoding in face_encodings:
         #    # See if the face is a match for the known face(s)
-            print2("Length of real encoding")
-            print2(len(face_encoding))
-            print2(type(face_encoding))
-            print2("Length of known people")
-            print2(len(known_face_encodings))
-            print2(known_face_encodings[0][0])
+            #print2("Length of real encoding")
+            #print2(len(face_encoding))
+            #print2(type(face_encoding))
+            #print2("Type of known people")
+            #print2(type(known_face_encodings[0]))
+            match = face_recognition.compare_faces([obama_face_encoding], face_encoding)
+            print2("match")
+            print2(obama_face_encoding)
+            print2(known_face_encodings[0])
+            match2 = face_recognition.compare_faces([obama_face_encoding], known_face_encodings[0])
+            print2(match)
+            print2(known_face_encodings[0].shape)
+            print2(known_face_encodings[0])
             distance = face_recognition.face_distance(known_face_encodings, face_encoding)
             print2("Distance")
             print2(distance)
@@ -120,7 +129,7 @@ def train(ip = 0):
         print2(" Connectiong to DB ")
     print2(" Training complete ")
 
-# TODO: Convert this into loading a csv/db file of param points
+
 def scan_known_people(known_people_folder):
     print2("Loading faces")
     global known_names
@@ -133,7 +142,9 @@ def scan_known_people(known_people_folder):
         img = face_recognition.load_image_file(file) 
         if not ifUserExists(basename):
             print2("New User")
+            print2(basename)
             encodings = face_recognition.face_encodings(img)
+            print2(encodings)
             print2(" Ending encoding! ")
             if len(encodings) > 1:
                 click.echo("WARNING: More than one face found in {}. Only considering the first face.".format(file))
@@ -229,17 +240,20 @@ def getEncodingFromDB(name):
     #Right now it's one massive string, need to break into individual components of float, split by comma
     element = db.search(User.Name == str(name))
     encoding = element[0].get('Encoding')
-    non_dec = re.compile(r'[^\d\s.]+')
+    #non_dec = re.compile(r'[^\d\s.]+')
+    non_dec = re.compile(r'[^-?\d\s.]+')
     result = non_dec.sub('', encoding)
     #print2("Start of Get Encoding")
+    print2("regex")
+    print2(result)
     result2 = result.rstrip('\n')
     result3 = result2.split(' ')
     #print2(type(result2))
     #Result 3 is a list with some incorrect values
     #print2(result3)
     result4 = cleanEncodingList(result3)
-
-    return result4
+    result5 = np.asarray(result4) # To NP array
+    return result5
 
 def cleanEncodingList(list):
     newList = []
