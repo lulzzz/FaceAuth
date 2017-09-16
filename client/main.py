@@ -16,6 +16,7 @@ import numpy as np
 import RPi.GPIO as GPIO # Only works on Pi's
 import time
 import random
+import psutil
 from tinydb import TinyDB, Query
 #import barcode on generate part
 # Lights tutorial
@@ -32,7 +33,6 @@ RED = 19
 
 known_face_encodings = None
 known_names = None
-
 
 db = None
 User = None
@@ -82,12 +82,6 @@ def main():
         face_encodings = face_recognition.face_encodings(output, face_locations)
         # Loop over each face found in the frame to see if it's someone we know.
         for face_encoding in face_encodings:
-        #    # See if the face is a match for the known face(s)
-            #print2("Length of real encoding")
-            #print2(len(face_encoding))
-            #print2(type(face_encoding))
-            #print2("Type of known people")
-            #print2(type(known_face_encodings[0]))
             distance = face_recognition.face_distance(known_face_encodings, face_encoding)
             print2("Distance")
             print2(distance)
@@ -193,6 +187,7 @@ def generateBarcode(number):
     filename = ean.save('ean13')
     image = Image.open('ea13p.svg')
     image.show()
+    
     print2(filename)
 
 def getBarcode(name):
@@ -208,13 +203,21 @@ def scanForBarcode():
     return barcode#decode(output)
 
 def displayBarcode(code):
+    global barcodeImage
+    global imageStatus
     code = 123456789102 #TODO: CHANGE THIS!
     ean = barcode.get('ean13', str(code), writer=ImageWriter())
     ean.get_fullcode()
     filename = ean.save('ean13')
     print2(filename)
+    #To do replace with process handling
     image = Image.open('ean13.png')
     image.show()
+    time.sleep(2)
+    for proc in psutil.process_iter():
+        if proc.name() == "display":
+            proc.kill()
+    print2("Close completed")
     # Delete image file?
     
 def deleteUser():
