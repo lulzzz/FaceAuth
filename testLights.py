@@ -13,21 +13,21 @@ GREEN = 26
 
 
 GPIO.setmode(GPIO.BCM)
-chan_list = [9, 10, 11]
-GPIO.setup(chan_list, GPIO.OUT)
-#GPIO.setup(GREEN, GPIO.OUT)
-#GPIO.setup(YELLOW, GPIO.OUT)
-#GPIO.setup(RED, GPIO.OUT)
+#chan_list = [9, 10, 11]
+#GPIO.setup(chan_list, GPIO.OUT)
+GPIO.setup(GREEN, GPIO.OUT)
+GPIO.setup(YELLOW, GPIO.OUT)
+GPIO.setup(RED, GPIO.OUT)
 while 1:
 
         #GPIO.output(chan_list, GPIO.HIGH)
 	#GPIO.output(YELLOW, GPIO.HIGH)
 	#GPIO.output(RED, GPIO.HIGH)
 	#GPIO.output(GREEN, GPIO.HIGH)
-	#GPIO.output(YELLOW, False)
-	#GPIO.output(RED, False)
-	#GPIO.output(GREEN, False)
+	GPIO.output(YELLOW, False)
+	GPIO.output(RED, False)
+	GPIO.output(GREEN, False)
 	#GPIO.output(20, false)
-        GPIO.output(chan_list, False)
+        #GPIO.output(chan_list, False)
         #GPIO.cleanup()
 # GPIO.output(1)

@@ -13,6 +13,7 @@ import click
 import numpy as np
 import RPi.GPIO as GPIO # Only works on Pi's
 import time
+import random
 from tinydb import TinyDB, Query
 #import barcode on generate part
 # Lights tutorial
@@ -20,7 +21,7 @@ from tinydb import TinyDB, Query
 
 BUTTON_1 = 9
 BUTTON_2 = 10
-BUTTON_3 = 12 # Doesn't currently work, need to use a different port
+BUTTON_3 = 7
 BUTTON_4 = 11
 
 GREEN = 26
@@ -194,14 +195,15 @@ def generateBarcode(number):
 
 def getBarcode(name):
     #TODO: Go through DB and find barcode associated with name
+    
     return -1
     
 
 def scanForBarcode():
     #TODO: Take images look for barcode
-    print (" Not implemented yet ")
-    #decode(output)
-    return 1
+    print2(" Not implemented yet ")
+    barcode = random.randint(0,1000000)
+    return barcode#decode(output)
 
 def displayBarcode(barcode):
     ean = barcode.get('ean13', barcode, writer=ImageWriter())

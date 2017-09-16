@@ -22,7 +22,8 @@ GPIO.setmode(GPIO.BCM)
 #four = 9
 one = 9
 two = 10
-three = 12
+#three = 12
+three = 7
 four = 11
 GPIO.setup(one, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(two, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
