@@ -82,8 +82,12 @@ def main():
             deleteUser()
         # Start recongize face
         camera.capture(output, format="rgb")
+        getEncodingStart = timeBench()
         face_locations = face_recognition.face_locations(output)
         face_encodings = face_recognition.face_encodings(output, face_locations)
+        getEncodingFinish = timeBench()
+        print2("Time to calculate initial encodings")
+        print2(getEncodingFinish - getEncodingStart)
         # Loop over each face found in the frame to see if it's someone we know.
         for face_encoding in face_encodings:
             startTime = timeBench()
@@ -114,6 +118,20 @@ def train(ip = 0):
         known_names, known_face_encodings = scan_known_people(os.getcwd() + "/../database/")
         # Loop through known_names, if not found then add the new known_name and known_face_encoding
         print2(known_names)
+        print2("DB ALL")
+        #print2(db.all())
+        all = db.all()
+        print2(type(all))
+        print2(all[0])
+        print2(all[1])
+        print2(type(all[0]))
+        print2(dir(all[0]))
+        print2(all[0].get('Id'))
+        for elem in all:
+            id = elem.get('Id')
+            known_names.append(id)
+            known_face_encodings.append(getEncodingFromDB(id))
+        
         for name in known_names:
             if not db.search(User.Id == name):
                 print2(name)
