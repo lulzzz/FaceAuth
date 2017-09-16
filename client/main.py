@@ -4,6 +4,7 @@ from pyzbar.pyzbar import decode
 from barcode.writer import ImageWriter
 from tinydb import where
 from PIL import Image
+from time import time as timeBench
 import picamera
 import barcode
 import face_recognition
@@ -34,6 +35,8 @@ RED = 19
 known_face_encodings = None
 known_names = None
 
+camera = None
+
 db = None
 User = None
 
@@ -43,6 +46,7 @@ def main():
     global User
     global known_face_encodings
     global known_names
+    global camera
     name = None
     db = TinyDB('db.json')
     User = Query()
@@ -82,6 +86,7 @@ def main():
         face_encodings = face_recognition.face_encodings(output, face_locations)
         # Loop over each face found in the frame to see if it's someone we know.
         for face_encoding in face_encodings:
+            startTime = timeBench()
             distance = face_recognition.face_distance(known_face_encodings, face_encoding)
             print2("Distance")
             print2(distance)
@@ -92,6 +97,9 @@ def main():
                 [print2("{}".format(name)) for is_match, name in zip(result, known_names) if is_match]
                 [nameList.append(name) for is_match, name in zip(result, known_names) if is_match]
                 displayBarcode(getBarcode(name))
+                endTime = timeBench()
+                print2("Time to execute")
+                print2(endTime - startTime)
 
                 #TODO: Display Bar code through screen
             #output.truncate(0)
@@ -152,10 +160,13 @@ def image_files_in_folder(folder):
     return [os.path.join(folder, f) for f in os.listdir(folder) if re.match(r'.*\.(jpg|jpeg|png)', f, flags=re.I)]
 
 def newUser():
-    # While button pressed is true  
+    # While button pressed is true
+    global camera
+    output = np.empty((240, 320, 3), dtype=np.uint8)
+    print2("Adding a new user")
     while GPIO.input(BUTTON_1):
-        barcode = scanForBarcode()
-        if barcode != -1:
+        code = scanForBarcode()
+        if code != -1:
             GPIO.output(YELLOW, GPIO.HIGH)
             time.sleep(.5)
             GPIO.output(YELLOW, False)
@@ -168,17 +179,23 @@ def newUser():
             time.sleep(.5)
             GPIO.output(YELLOW, False)
             time.sleep(.5)
-            #Take photo
-            #TODO: This
-            # Show green if registered successfully
-            code = scanForBarCode()
-            if code > 0:
-                db.insert({'ID': str(code), 'Encoding':  str(known_face_encodings[known_names.index(name)])})
+            #Show green if registered successfully
+            #Take photo of face, see if there is one and get the encoding
+            camera.capture(output, format="rgb")
+            face_locations = face_recognition.face_locations(output)
+            face_encodings = face_recognition.face_encodings(output, face_locations)
+            
+            if len(face_encodings) == 1:
+                db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
+                known_face_encodings.append(face_encodings[0])
+                known_names.append(code)
                 GPIO.output(GREEN, GPIO.HIGH)
                 time.sleep(1)
                 GPIO.output(GREEN, False)
-            # Show red if not registered successfully
-            #GPIO.output(RED, GPIO.HIGH)
+            else: # More than one or no faces found
+                GPIO.output(RED, GPIO.HIGH)
+                time.sleep(1)
+                GPIO.output(RED, Fals)
 
 def generateBarcode(number):
     #TODO: The barcode type will probably need to be a parameter as it is gym by bym basis
@@ -192,7 +209,6 @@ def generateBarcode(number):
 
 def getBarcode(name):
     #TODO: Go through DB and find barcode associated with name
-    
     return -1
     
 
