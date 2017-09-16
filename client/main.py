@@ -117,16 +117,7 @@ def train(ip = 0):
     if ip == 0:
         known_names, known_face_encodings = scan_known_people(os.getcwd() + "/../database/")
         # Loop through known_names, if not found then add the new known_name and known_face_encoding
-        print2(known_names)
-        print2("DB ALL")
-        #print2(db.all())
         all = db.all()
-        print2(type(all))
-        print2(all[0])
-        print2(all[1])
-        print2(type(all[0]))
-        print2(dir(all[0]))
-        print2(all[0].get('Id'))
         for elem in all:
             id = elem.get('Id')
             known_names.append(id)
@@ -281,9 +272,6 @@ def getEncodingFromDB(id):
     print2(result)
     result2 = result.rstrip('\n')
     result3 = result2.split(' ')
-    #print2(type(result2))
-    #Result 3 is a list with some incorrect values
-    #print2(result3)
     result4 = cleanEncodingList(result3)
     result5 = np.asarray(result4) # To NP array
     return result5
