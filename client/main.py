@@ -1,7 +1,9 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 from pyzbar.pyzbar import decode
+from barcode.writer import ImageWriter
 from tinydb import where
+from PIL import Image
 import picamera
 import barcode
 import face_recognition
@@ -111,7 +113,7 @@ def train(ip = 0):
         # Loop through known_names, if not found then add the new known_name and known_face_encoding
         print2(known_names)
         for name in known_names:
-            if not db.search(User.Name == name):
+            if not db.search(User.Id == name):
                 print2(name)
                 print2(known_face_encodings[known_names.index(name)])
                 addUserToDB(name, known_face_encodings[known_names.index(name)])
@@ -175,9 +177,9 @@ def newUser():
             #Take photo
             #TODO: This
             # Show green if registered successfully
-            barcode = scanForBarCode()
-            if barcode > 0:
-                #db.insert({'Name': str(name), 'Encoding':  str(known_face_encodings[known_names.index(name)])})
+            code = scanForBarCode()
+            if code > 0:
+                db.insert({'ID': str(code), 'Encoding':  str(known_face_encodings[known_names.index(name)])})
                 GPIO.output(GREEN, GPIO.HIGH)
                 time.sleep(1)
                 GPIO.output(GREEN, False)
@@ -205,8 +207,9 @@ def scanForBarcode():
     barcode = random.randint(0,1000000)
     return barcode#decode(output)
 
-def displayBarcode(barcode):
-    ean = barcode.get('ean13', barcode, writer=ImageWriter())
+def displayBarcode(code):
+    code = 123456789102 #TODO: CHANGE THIS!
+    ean = barcode.get('ean13', str(code), writer=ImageWriter())
     ean.get_fullcode()
     filename = ean.save('ean13')
     print2(filename)
@@ -220,18 +223,18 @@ def deleteUser():
         print (" Not implemented yet ")
 
 def addUserToDB(name, encoding):
-    db.insert({'Name': str(name), 'Encoding':  str(encoding)})
+    db.insert({'Id': str(name), 'Encoding':  str(encoding)})
     return 0
 
 def ifUserExists(name):
     print2("Db search for " + str(name))
-    if db.search(User.Name == str(name)):
+    if db.search(User.Id == str(name)):
         return True
     return False
 
-def getEncodingFromDB(name):
+def getEncodingFromDB(id):
     #Right now it's one massive string, need to break into individual components of float, split by comma
-    element = db.search(User.Name == str(name))
+    element = db.search(User.Id == str(id))
     encoding = element[0].get('Encoding')
     #non_dec = re.compile(r'[^\d\s.]+')
     non_dec = re.compile(r'[^-?\d\s.]+')
