@@ -1,5 +1,6 @@
 from pyzbar.pyzbar import decode
 from PIL import Image
+from time import time
 
 
 #Needs a better camera and algorithm,
@@ -8,7 +9,10 @@ from PIL import Image
 #barcode_4 works
 #barcode3 doesn't work
 
-
-print(decode(Image.open('barcode3.jpg'))) 
-
+print("Starting Decode")
+startTime = time()
+print(decode(Image.open('cam.png')))
+endTime = time()
+print(endTime - startTime)
+print("Done")
 

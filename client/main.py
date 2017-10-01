@@ -68,7 +68,7 @@ def main():
     train()
 
     # Recognize faces
-    # TODO: Maybe change into that for loop from run.py
+    # TODO: Maybe change inoto that for loop from run.py
     print2("Running")
     while True:
         #print2(known_names)
