@@ -69,6 +69,7 @@ def main():
     # Recognize faces
     # TODO: Maybe change inoto that for loop from run.py
     print2("Running")
+    blink(GREEN, 5)
     while True:
         #print2(known_names)
         #print2(known_face_encodings)
@@ -103,6 +104,9 @@ def main():
                 endTime = timeBench()
                 print2("Time to execute")
                 print2(endTime - startTime)
+                blink(GREEN,1)
+            else:
+                blink(RED,1)
 
                 #TODO: Display Bar code through screen
             #output.truncate(0)
@@ -175,18 +179,9 @@ def newUser():
     while GPIO.input(BUTTON_1):
         code = scanForBarcode()
         if code != -1:
-            GPIO.output(YELLOW, GPIO.HIGH)
-            time.sleep(.5)
-            GPIO.output(YELLOW, False)
-            time.sleep(.5)
-            GPIO.output(YELLOW, GPIO.HIGH)
-            time.sleep(.5)
-            GPIO.output(YELLOW, False)
-            time.sleep(.5)
-            GPIO.output(YELLOW, GPIO.HIGH)
-            time.sleep(.5)
-            GPIO.output(YELLOW, False)
-            time.sleep(.5)
+            blink(YELLOW, 0.5)
+            blink(YELLOW, 0.5)
+            blink(YELLOW, 0.5)
             #Show green if registered successfully
             #Take photo of face, see if there is one and get the encoding
             camera.capture(output, format="rgb")
@@ -197,16 +192,13 @@ def newUser():
                 db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
                 known_face_encodings.append(face_encodings[0])
                 known_names.append(code)
-                GPIO.output(GREEN, GPIO.HIGH)
-                time.sleep(1)
-                GPIO.output(GREEN, False)
+                blink(GREEN,1)
             else: # More than one or no faces found
-                GPIO.output(RED, GPIO.HIGH)
-                time.sleep(1)
-                GPIO.output(RED, False)
+                blink(RED,1)
 
 def generateBarcode(number):
-    #TODO: The barcode type will probably need to be a parameter as it is gym by bym basis
+    #TODO: The barcode type will probably need to be a parameter as it is gym by bym basis4037456
+    
     ean = barcode.get('ean13', '123456789102')
     ean.get_fullcode()
     filename = ean.save('ean13')
@@ -218,85 +210,20 @@ def generateBarcode(number):
 def getBarcode(name):
     #TODO: Go through DB and find barcode associated with name
     return -1
-    
-#TODO: This method may no longer be needed
-def barcode_reader():
-    """Barcode code obtained from 'brechmos' 
-    https://www.raspberrypi.org/forums/viewtopic.php?f=45&t=55100"""
-    hid = {4: 'a', 5: 'b', 6: 'c', 7: 'd', 8: 'e', 9: 'f', 10: 'g', 11: 'h', 12: 'i', 13: 'j', 14: 'k', 15: 'l', 16: 'm',
-           17: 'n', 18: 'o', 19: 'p', 20: 'q', 21: 'r', 22: 's', 23: 't', 24: 'u', 25: 'v', 26: 'w', 27: 'x', 28: 'y',
-           29: 'z', 30: '1', 31: '2', 32: '3', 33: '4', 34: '5', 35: '6', 36: '7', 37: '8', 38: '9', 39: '0', 44: ' ',
-           45: '-', 46: '=', 47: '[', 48: ']', 49: '\\', 51: ';', 52: '\'', 53: '~', 54: ',', 55: '.', 56: '/'}
-
-    hid2 = {4: 'A', 5: 'B', 6: 'C', 7: 'D', 8: 'E', 9: 'F', 10: 'G', 11: 'H', 12: 'I', 13: 'J', 14: 'K', 15: 'L', 16: 'M',
-            17: 'N', 18: 'O', 19: 'P', 20: 'Q', 21: 'R', 22: 'S', 23: 'T', 24: 'U', 25: 'V', 26: 'W', 27: 'X', 28: 'Y',
-            29: 'Z', 30: '!', 31: '@', 32: '#', 33: '$', 34: '%', 35: '^', 36: '&', 37: '*', 38: '(', 39: ')', 44: ' ',
-            45: '_', 46: '+', 47: '{', 48: '}', 49: '|', 51: ':', 52: '"', 53: '~', 54: '<', 55: '>', 56: '?'}
-
-    fp = open('/dev/hidraw0', 'rb')
-
-    ss = ""
-    shift = False
-
-    done = False
-
-    while not done:
-
-        ## Get the character from the HID
-        buffer = fp.read(8)
-
-        for c in buffer:
-            if ord(c) > 0:
-
-                ##  40 is carriage return which signifies
-                ##  we are done looking for characters
-                if int(ord(c)) == 40:
-                    done = True
-                    break;
-
-                ##  If we are shifted then we have to
-                ##  use the hid2 characters.
-                if shift:
-
-                    ## If it is a '2' then it is the shift key
-                    if int(ord(c)) == 2:
-                        shift = True
-
-                    ## if not a 2 then lookup the mapping
-                    else:
-                        ss += hid2[int(ord(c))]
-                        shift = False
-
-                ##  If we are not shifted then use
-                ##  the hid characters
-
-                else:
-
-                    ## If it is a '2' then it is the shift key
-                    if int(ord(c)) == 2:
-                        shift = True
-
-                    ## if not a 2 then lookup the mapping
-                    else:
-                        ss += hid[int(ord(c))]
-    return ss
 
 def scanForBarcode():
-    #TODO: Take images look for barcode
-    try:
-        while True:
-            #scan = barcode_reader()
-            scan = input('')
-            print(scan)
-            return scan
-    except KeyboardInterrupt:
-        pass
-    return -1
+    scan = input('')
+    print(scan)
+    return scan
+
 
 def displayBarcode(code):
     global barcodeImage
     global imageStatus
-    code = 123456789102 #TODO: CHANGE THIS!
+    print(type(code))
+    #code = 123456789102 #TODO: CHANGE THIS!
+    code = 28674006957492
+    print(type(code))
     ean = barcode.get('ean13', str(code), writer=ImageWriter())
     ean.get_fullcode()
     filename = ean.save('ean13')
@@ -341,6 +268,12 @@ def getEncodingFromDB(id):
     result4 = cleanEncodingList(result3)
     result5 = np.asarray(result4) # To NP array
     return result5
+
+#TODO: Multithread this
+def blink(color, inputTime):
+    GPIO.output(color, GPIO.HIGH)
+    time.sleep(inputTime)
+    GPIO.output(color, False)
 
 def cleanEncodingList(list):
     newList = []
