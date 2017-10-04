@@ -18,6 +18,7 @@ import time
 import random
 import psutil
 from tinydb import TinyDB, Query
+
 #import barcode on generate part
 # Lights tutorial
 # http://lowvoltagelabs.com/products/pi-traffic/
@@ -178,6 +179,8 @@ def newUser():
     print2("Adding a new user")
     while GPIO.input(BUTTON_1):
         code = scanForBarcode()
+        if (ifUserExists(code)):
+            blink(GREEN, 0.5)
         if code != -1:
             blink(YELLOW, 0.5)
             blink(YELLOW, 0.5)
@@ -189,7 +192,8 @@ def newUser():
             face_encodings = face_recognition.face_encodings(output, face_locations)
             
             if len(face_encodings) == 1:
-                db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
+                addUserToDB(str(code), str(face_encodings[0]))
+                #db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
                 known_face_encodings.append(face_encodings[0])
                 known_names.append(code)
                 blink(GREEN,1)
@@ -240,16 +244,23 @@ def displayBarcode(code):
     
 def deleteUser():
     # While button pressed is true
-    if GPIO.input():
-        print (" Not implemented yet ")
+    print2("In Delete User")
+    code = scanForBarcode()
+    if (ifUserExists(code)):
+        blink(GREEN, 0.5)
+        removeUserFromDB(code)
+    else:
+        blink(RED, 0.5)
+        
 
 def addUserToDB(name, encoding):
+    print2("Adding " + str(name))
     db.insert({'Id': str(name), 'Encoding':  str(encoding)})
     return 0
 
-def ifUserExists(name):
-    print2("Db search for " + str(name))
-    if db.search(User.Id == str(name)):
+def ifUserExists(code):
+    print2("Db search for " + str(code))
+    if db.search(User.Id == str(code)):
         return True
     return False
 
@@ -289,8 +300,9 @@ def cleanEncodingList(list):
     #print2(type(newList[3]))
     return newList
 
-def removeUserFromDB(user):
-    db.delete(str(user))
+def removeUserFromDB(code):
+    print2("Removing user:" + str(code))
+    db.remove(where('Id') == str(code))
     return 0
 
 def print2(message):
