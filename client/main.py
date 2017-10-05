@@ -105,6 +105,8 @@ def main():
         # Loop over each face found in the frame to see if it's someone we know.
         for face_encoding in face_encodings:
             startTime = timeBench()
+            print2(type(known_face_encodings[0][0]))
+            print2(known_face_encodings[0])
             distance = face_recognition.face_distance(known_face_encodings, face_encoding)
             print2("Distance")
             print2(distance)
@@ -112,9 +114,20 @@ def main():
             nameList = list()
             print2(result)
             if True in result:
+                index = -1
+                print2(type(result))
+                #Find spot in list that returned positive
+                index = -1
+                for idx, item in enumerate(result):
+                    if item == True:
+                        index = idx
                 [print2("{}".format(name)) for is_match, name in zip(result, known_names) if is_match]
                 [nameList.append(name) for is_match, name in zip(result, known_names) if is_match]
-                displayBarcode(getBarcode(name))
+                print2("GOT HERE 1")
+                print2(index)
+               
+                displayBarcode(known_names[index])
+                #displayBarcode(12345)
                 endTime = timeBench()
                 print2("Time to execute")
                 print2(endTime - startTime)
@@ -137,7 +150,7 @@ def train(ip = 0):
         all = db.all()
         for elem in all:
             id = elem.get('Id')
-            if ifUserExists(id):
+            if id in known_names:
                 print2("Found existing user")
             else:
                 known_names.append(id)
@@ -146,7 +159,6 @@ def train(ip = 0):
         for name in known_names:
             #This is for the image directory
             if not ifUserExists(name):
-                print2("GOT HERE")
                 print2(name)
                 print2(known_face_encodings[known_names.index(name)])
                 addUserToDB(name, known_face_encodings[known_names.index(name)])
@@ -195,9 +207,9 @@ def newUser():
     while GPIO.input(BUTTON_1):
         code = scanForBarcode()
         if code != -1:
-            blink(YELLOW, 0.5)
-            blink(YELLOW, 0.5)
-            blink(YELLOW, 0.5)
+            blink(YELLOW, 1)
+            blink(YELLOW, 1)
+            blink(YELLOW, 1)
             #Show green if registered successfully
             #Take photo of face, see if there is one and get the encoding
             camera.capture(output, format="rgb")
@@ -207,7 +219,7 @@ def newUser():
             if len(face_encodings) == 1:
                 if (ifUserExists(code)):
                     removeUserFromDB(code)
-                addUserToDB(str(code), str(face_encodings[0]))
+                addUserToDB(str(code), face_encodings[0])
                 #db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
                 known_face_encodings.append(face_encodings[0])
                 known_names.append(code)
@@ -236,14 +248,14 @@ def scanForBarcode():
     return scan
 
 
-def displayBarcode(code):
+def displayBarcode(barCodeInput):
     global barcodeImage
     global imageStatus
-    print(type(code))
     #code = 123456789102 #TODO: CHANGE THIS!
-    code = 28674006957492
-    print(type(code))
-    ean = barcode.get('ean13', str(code), writer=ImageWriter())
+    #code = 28674006957492
+    
+    barCodeInput = int(barCodeInput)
+    ean = barcode.get('ean13', str(barCodeInput), writer=ImageWriter())
     ean.get_fullcode()
     filename = ean.save('ean13')
     print2(filename)
@@ -280,13 +292,10 @@ def float_to_str(f):
 
 def addUserToDB(name, encoding):
     print2("Adding " + str(name))
-    print2(type(encoding))
-    print2(type(encoding[0]))
+    
     stringEncoding = []
     for elem in encoding:
-        print(elem)
-        print(type(elem))
-        print2("Elem is" + str(elem))
+        
         stringEncoding.append(float_to_str(elem))
     #TODO: Make the string conversion float specific
     db.insert({'Id': str(name), 'Encoding':  stringEncoding})
@@ -299,11 +308,23 @@ def ifUserExists(barcode):
     return False
 
 def getEncodingFromDB(id):
+    element = db.search(User.Id == str(id))
+    floatList = []
+    element = element[0].get('Encoding')
+    for elem in element:
+        
+        floatList.append(float(elem))
+    return floatList
+
+def getEncodingFromDB2(id):
     #Right now it's one massive string, need to break into individual components of float, split by comma
     element = db.search(User.Id == str(id))
+
     encoding = element[0].get('Encoding')
     #non_dec = re.compile(r'[^\d\s.]+')
     non_dec = re.compile(r'[^-?\d\s.]+')
+    print2(type(encoding))
+    print2(encoding)
     result = non_dec.sub('', encoding)
     #print2("Start of Get Encoding")
     print2("regex")
@@ -319,6 +340,7 @@ def blink(color, inputTime):
     GPIO.output(color, GPIO.HIGH)
     time.sleep(inputTime)
     GPIO.output(color, False)
+    time.sleep(inputTime)
 
 def cleanEncodingList(list):
     newList = []
@@ -335,7 +357,14 @@ def cleanEncodingList(list):
     return newList
 
 def removeUserFromDB(code):
+    global known_names
+    global known_face_encodings
     print2("Removing user:" + str(code))
+    for idx, item in enumerate(known_names):
+        if code == item:
+            index = idx
+    del known_names[index]
+    del known_face_encodings[index]
     db.remove(where('Id') == str(code))
     return 0
 
