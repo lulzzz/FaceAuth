@@ -16,7 +16,9 @@ import numpy as np
 import RPi.GPIO as GPIO # Only works on Pi's
 import time
 import random
+import decimal #For Float to string
 import psutil
+import signal # For timeouts on input
 from tinydb import TinyDB, Query
 
 #import barcode on generate part
@@ -39,6 +41,17 @@ camera = None
 
 db = None
 User = None
+
+#Signal handeling
+
+#class UserInputTimeoutError(Exception):
+#    pass
+
+#def handler(signum, frame):
+#    rasie UserInputTimeoutError('No input from user')
+    
+#signal.signal(signal.SIGALRM, handler)
+#signal.alarm(5)
 
 def main():
     #Setup
@@ -124,11 +137,16 @@ def train(ip = 0):
         all = db.all()
         for elem in all:
             id = elem.get('Id')
-            known_names.append(id)
-            known_face_encodings.append(getEncodingFromDB(id))
+            if ifUserExists(id):
+                print2("Found existing user")
+            else:
+                known_names.append(id)
+                known_face_encodings.append(getEncodingFromDB(id))
         
         for name in known_names:
-            if not db.search(User.Id == name):
+            #This is for the image directory
+            if not ifUserExists(name):
+                print2("GOT HERE")
                 print2(name)
                 print2(known_face_encodings[known_names.index(name)])
                 addUserToDB(name, known_face_encodings[known_names.index(name)])
@@ -153,8 +171,6 @@ def scan_known_people(known_people_folder):
             print2("New User")
             print2(basename)
             encodings = face_recognition.face_encodings(img)
-            print2(encodings)
-            print2(" Ending encoding! ")
             if len(encodings) > 1:
                 click.echo("WARNING: More than one face found in {}. Only considering the first face.".format(file))
             if len(encodings) == 0:
@@ -162,7 +178,6 @@ def scan_known_people(known_people_folder):
             else:
                 known_names.append(basename)
                 known_face_encodings.append(encodings[0])
-            print2(" Processed a face! ")
         else:
             known_names.append(basename)
             known_face_encodings.append(getEncodingFromDB(basename))
@@ -179,8 +194,6 @@ def newUser():
     print2("Adding a new user")
     while GPIO.input(BUTTON_1):
         code = scanForBarcode()
-        if (ifUserExists(code)):
-            blink(GREEN, 0.5)
         if code != -1:
             blink(YELLOW, 0.5)
             blink(YELLOW, 0.5)
@@ -192,6 +205,8 @@ def newUser():
             face_encodings = face_recognition.face_encodings(output, face_locations)
             
             if len(face_encodings) == 1:
+                if (ifUserExists(code)):
+                    removeUserFromDB(code)
                 addUserToDB(str(code), str(face_encodings[0]))
                 #db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
                 known_face_encodings.append(face_encodings[0])
@@ -252,15 +267,34 @@ def deleteUser():
     else:
         blink(RED, 0.5)
         
+def float_to_str(f):
+    ctx = decimal.Context()
+    ctx.prec = 12
+    """
+    Convert the given float to a string,
+    without resorting to scientific notation
+    """
+    d1 = ctx.create_decimal(repr(f))
+    return format(d1, 'f')
+
 
 def addUserToDB(name, encoding):
     print2("Adding " + str(name))
-    db.insert({'Id': str(name), 'Encoding':  str(encoding)})
+    print2(type(encoding))
+    print2(type(encoding[0]))
+    stringEncoding = []
+    for elem in encoding:
+        print(elem)
+        print(type(elem))
+        print2("Elem is" + str(elem))
+        stringEncoding.append(float_to_str(elem))
+    #TODO: Make the string conversion float specific
+    db.insert({'Id': str(name), 'Encoding':  stringEncoding})
     return 0
 
-def ifUserExists(code):
-    print2("Db search for " + str(code))
-    if db.search(User.Id == str(code)):
+def ifUserExists(barcode):
+    print2("Db search for " + str(barcode))
+    if db.search(User.Id == str(barcode)):
         return True
     return False
 
