@@ -244,6 +244,7 @@ def getBarcode(name):
 
 def scanForBarcode():
     scan = input('')
+    numerics = re.sub("[^[0-9]", "", scan)
     print(scan)
     return scan
 
