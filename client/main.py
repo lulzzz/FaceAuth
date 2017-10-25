@@ -94,6 +94,15 @@ def main():
             newUser()
         if GPIO.input(BUTTON_2):
             deleteUser()
+        if GPIO.input(BUTTON_3):
+            #Todo: implement event listener
+            print2("Cancelling action")
+        if GPIO.input(BUTTON_4):
+            print2("Cancel button for add / remove user?")
+            print2("Restting db")
+
+        #If buttons 3 + 4 then reset device
+            #print2("Resetting device")
         # Start recongize face
         camera.capture(output, format="rgb")
         getEncodingStart = timeBench()
@@ -123,11 +132,9 @@ def main():
                         index = idx
                 [print2("{}".format(name)) for is_match, name in zip(result, known_names) if is_match]
                 [nameList.append(name) for is_match, name in zip(result, known_names) if is_match]
-                print2("GOT HERE 1")
                 print2(index)
                
                 displayBarcode(known_names[index])
-                #displayBarcode(12345)
                 endTime = timeBench()
                 print2("Time to execute")
                 print2(endTime - startTime)
@@ -235,12 +242,8 @@ def generateBarcode(number):
     filename = ean.save('ean13')
     image = Image.open('ea13p.svg')
     image.show()
-    
     print2(filename)
 
-def getBarcode(name):
-    #TODO: Go through DB and find barcode associated with name
-    return -1
 
 def scanForBarcode():
     scan = input('')
@@ -252,9 +255,7 @@ def scanForBarcode():
 def displayBarcode(barCodeInput):
     global barcodeImage
     global imageStatus
-    #code = 123456789102 #TODO: CHANGE THIS!
-    #code = 28674006957492
-    
+
     barCodeInput = int(barCodeInput)
     ean = barcode.get('ean13', str(barCodeInput), writer=ImageWriter())
     ean.get_fullcode()
@@ -317,31 +318,13 @@ def getEncodingFromDB(id):
         floatList.append(float(elem))
     return floatList
 
-def getEncodingFromDB2(id):
-    #Right now it's one massive string, need to break into individual components of float, split by comma
-    element = db.search(User.Id == str(id))
 
-    encoding = element[0].get('Encoding')
-    #non_dec = re.compile(r'[^\d\s.]+')
-    non_dec = re.compile(r'[^-?\d\s.]+')
-    print2(type(encoding))
-    print2(encoding)
-    result = non_dec.sub('', encoding)
-    #print2("Start of Get Encoding")
-    print2("regex")
-    print2(result)
-    result2 = result.rstrip('\n')
-    result3 = result2.split(' ')
-    result4 = cleanEncodingList(result3)
-    result5 = np.asarray(result4) # To NP array
-    return result5
-
-#TODO: Multithread this
+#TODO: Multithread this for the main loop
 def blink(color, inputTime):
     GPIO.output(color, GPIO.HIGH)
     time.sleep(inputTime)
     GPIO.output(color, False)
-    time.sleep(inputTime)
+    time.sleep(0.5)
 
 def cleanEncodingList(list):
     newList = []
@@ -352,9 +335,6 @@ def cleanEncodingList(list):
             stripNewLine = element.rstrip('\n')
             #print2(stripNewLine)
             newList.append(float(stripNewLine))
-    #print2(len(newList))        
-    #print2(newList)
-    #print2(type(newList[3]))
     return newList
 
 def removeUserFromDB(code):
@@ -372,10 +352,35 @@ def removeUserFromDB(code):
 def print2(message):
     print(message)
     sys.stdout.flush()
-    
 
+
+def resetDatabase():
+    #Might cause an issue if the file is referenced somewhere else
+    os.remove('db.json')
+    train()
+
+def resetPi():
+    #might be os.system('sudo shutdown -r now')
+    os.system('sudo reboot -r now')
+
+
+# TODO: Delete this in the future, no longer useful
+# def getEncodingFromDB2(id):
+#     #Right now it's one massive string, need to break into individual components of float, split by comma
+#     element = db.search(User.Id == str(id))
+#
+#     encoding = element[0].get('Encoding')
+#     #non_dec = re.compile(r'[^\d\s.]+')
+#     non_dec = re.compile(r'[^-?\d\s.]+')
+#     print2(type(encoding))
+#     print2(encoding)
+#     result = non_dec.sub('', encoding)
+#     #print2("Start of Get Encoding")
+#     print2("regex")
+#     print2(result)
+#     result2 = result.rstrip('\n')
+#     result3 = result2.split(' ')
+#     result4 = cleanEncodingList(result3)
+#     result5 = np.asarray(result4) # To NP array
+#     return result5
 if  __name__ =='__main__':main()
-
-# For shutdown/restart button
-# import os
-# os.system('sudo shutdown -r now')
