@@ -28,7 +28,7 @@ for x in range(0, 20):
 while True:
     for x in range(0, 20):
         if GPIO.input(x):
-            print("x")
+            print(str(x))
 
 #Start
 
