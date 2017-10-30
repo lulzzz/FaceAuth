@@ -20,28 +20,38 @@ GPIO.setmode(GPIO.BCM)
 #two = 10
 #three = 11
 #four = 9
-one = 9
-two = 10
-#three = 12
-three = 7
-four = 11
-GPIO.setup(one, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(two, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(three, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(four, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-#print (chan_list)
+# Three is 7
+
+for x in range(0, 20):
+    GPIO.setup(x, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
 while True:
-    
-    if GPIO.input(one):
-        print("1: input was high")
-    if GPIO.input(two):
-        print("2: input was high")
-    if GPIO.input(three):
-        print("3: input was high")
-    if GPIO.input(four):
-        print("4: input was high")
-    #else:
-     #   print("input was low")
+    for x in range(0, 20):
+        if GPIO.input(x):
+            print("x")
+
+#Start
+
+# one = 9
+# two = 10
+# three = 7
+# four = 11
+# GPIO.setup(one, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# GPIO.setup(two, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# GPIO.setup(three, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# GPIO.setup(four, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# #print (chan_list)
+# while True:
+#
+#     if GPIO.input(one):
+#         print("1: input was high")
+#     if GPIO.input(two):
+#         print("2: input was high")
+#     if GPIO.input(three):
+#         print("3: input was high")
+#     if GPIO.input(four):
+#         print("4: input was high")
+
 
 
 GPIO.cleanup()
