@@ -22,11 +22,11 @@ GPIO.setmode(GPIO.BCM)
 #four = 9
 # Three is 7
 
-for x in range(0, 20):
+for x in range(5, 20):
     GPIO.setup(x, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 while True:
-    for x in range(0, 20):
+    for x in range(5, 20):
         if GPIO.input(x):
             print(str(x))
 
