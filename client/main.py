@@ -20,11 +20,9 @@ import decimal #For Float to string
 import psutil
 import signal # For timeouts on input
 from tinydb import TinyDB, Query
+from pydispatch import dispatcher #pip install PyDispatcher
 
 #import barcode on generate part
-# Lights tutorial
-# http://lowvoltagelabs.com/products/pi-traffic/
-
 BUTTON_1 = 9
 BUTTON_2 = 10
 BUTTON_3 = 7
@@ -42,17 +40,6 @@ camera = None
 db = None
 User = None
 
-#Signal handeling
-
-#class UserInputTimeoutError(Exception):
-#    pass
-
-#def handler(signum, frame):
-#    rasie UserInputTimeoutError('No input from user')
-    
-#signal.signal(signal.SIGALRM, handler)
-#signal.alarm(5)
-
 def main():
     #Setup
     global db
@@ -60,6 +47,8 @@ def main():
     global known_face_encodings
     global known_names
     global camera
+    SIGNAL = 'Button 3'
+
     name = None
     db = TinyDB('db.json')
     User = Query()
@@ -80,8 +69,6 @@ def main():
     print2("Setup complete")
     train()
 
-    # Recognize faces
-    # TODO: Maybe change inoto that for loop from run.py
     print2("Running")
     blink(GREEN, 5)
     while True:
@@ -89,60 +76,65 @@ def main():
         #print2(known_face_encodings)
         # http://razzpisampler.oreilly.com/ch07.html
         # Global Try
-            # Evnts checked
-        if GPIO.input(BUTTON_1):
-            newUser()
-        if GPIO.input(BUTTON_2):
-            deleteUser()
-        if GPIO.input(BUTTON_3):
-            #Todo: implement event listener
-            print2("Cancelling action")
-        if GPIO.input(BUTTON_4):
-            print2("Cancel button for add / remove user?")
-            print2("Restting db")
+        try:
+            dispatcher.connect(button3Handler, signal=SIGNAL, sender=dispatcher.Any) # This needs to be nested to prevent any issues
+                # Events checked
+            if GPIO.input(BUTTON_1):
+                newUser()
+            if GPIO.input(BUTTON_2):
+                deleteUser()
+            if GPIO.input(BUTTON_3):
+                #Todo: implement event listener
+                dispatcher.send(signal=SIGNAL, sender=None)
+                print2("Cancelling action")
+            if GPIO.input(BUTTON_4):
+                print2("Cancel button for add / remove user?")
+                print2("Restting db")
 
-        #If buttons 3 + 4 then reset device
-            #print2("Resetting device")
-        # Start recongize face
-        camera.capture(output, format="rgb")
-        getEncodingStart = timeBench()
-        face_locations = face_recognition.face_locations(output)
-        face_encodings = face_recognition.face_encodings(output, face_locations)
-        getEncodingFinish = timeBench()
-        print2("Time to calculate initial encodings")
-        print2(getEncodingFinish - getEncodingStart)
-        # Loop over each face found in the frame to see if it's someone we know.
-        for face_encoding in face_encodings:
-            startTime = timeBench()
-            print2(type(known_face_encodings[0][0]))
-            print2(known_face_encodings[0])
-            distance = face_recognition.face_distance(known_face_encodings, face_encoding)
-            print2("Distance")
-            print2(distance)
-            result = face_recognition.compare_faces(known_face_encodings, face_encoding)
-            nameList = list()
-            print2(result)
-            if True in result:
-                index = -1
-                print2(type(result))
-                #Find spot in list that returned positive
-                index = -1
-                for idx, item in enumerate(result):
-                    if item == True:
-                        index = idx
-                [print2("{}".format(name)) for is_match, name in zip(result, known_names) if is_match]
-                [nameList.append(name) for is_match, name in zip(result, known_names) if is_match]
-                print2(index)
-               
-                displayBarcode(known_names[index])
-                endTime = timeBench()
-                print2("Time to execute")
-                print2(endTime - startTime)
-                blink(GREEN,1)
-            else:
-                blink(RED,1)
+            #If buttons 3 + 4 then reset device
+                #print2("Resetting device")
+            # Start recongize face
+            camera.capture(output, format="rgb")
+            getEncodingStart = timeBench()
+            face_locations = face_recognition.face_locations(output)
+            face_encodings = face_recognition.face_encodings(output, face_locations)
+            getEncodingFinish = timeBench()
+            print2("Time to calculate initial encodings")
+            print2(getEncodingFinish - getEncodingStart)
+            # Loop over each face found in the frame to see if it's someone we know.
+            for face_encoding in face_encodings:
+                startTime = timeBench()
+                print2(type(known_face_encodings[0][0]))
+                print2(known_face_encodings[0])
+                distance = face_recognition.face_distance(known_face_encodings, face_encoding)
+                print2("Distance")
+                print2(distance)
+                result = face_recognition.compare_faces(known_face_encodings, face_encoding)
+                nameList = list()
+                print2(result)
+                if True in result:
+                    index = -1
+                    print2(type(result))
+                    #Find spot in list that returned positive
+                    index = -1
+                    for idx, item in enumerate(result):
+                        if item == True:
+                            index = idx
+                    [print2("{}".format(name)) for is_match, name in zip(result, known_names) if is_match]
+                    [nameList.append(name) for is_match, name in zip(result, known_names) if is_match]
+                    print2(index)
 
-                #TODO: Display Bar code through screen
+                    displayBarcode(known_names[index])
+                    endTime = timeBench()
+                    print2("Time to execute")
+                    print2(endTime - startTime)
+                    blink(GREEN,1)
+                else:
+                    blink(RED,1)
+
+                    #TODO: Display Bar code through screen
+        except:
+            print2("Caught an exception that shouldn't have occured")
             #output.truncate(0)
 
 # Param: IP, if null then look locally
@@ -211,7 +203,7 @@ def newUser():
     global camera
     output = np.empty((240, 320, 3), dtype=np.uint8)
     print2("Adding a new user")
-    while GPIO.input(BUTTON_1):
+    try:
         code = scanForBarcode()
         if code != -1:
             blink(YELLOW, 1)
@@ -222,7 +214,7 @@ def newUser():
             camera.capture(output, format="rgb")
             face_locations = face_recognition.face_locations(output)
             face_encodings = face_recognition.face_encodings(output, face_locations)
-            
+
             if len(face_encodings) == 1:
                 if (ifUserExists(code)):
                     removeUserFromDB(code)
@@ -230,9 +222,26 @@ def newUser():
                 #db.insert({'Id': str(code), 'Encoding':  str(face_encodings[0])})
                 known_face_encodings.append(face_encodings[0])
                 known_names.append(code)
+                saveImage(code, output)
                 blink(GREEN,1)
             else: # More than one or no faces found
                 blink(RED,1)
+
+    except: #User has pressed button 3
+        print2("Exception handled, breaking out of add user")
+
+def button3Handler(sender):
+    print2("Button 3 was hit")
+    #SIGNAL = 'my-first-signal'
+    #dispatcher.connect( handle_event, signal=SIGNAL, sender=dispatcher.Any )
+    raise Exception('Button 3 was pressed')
+
+
+#TODO: Test this
+def saveImage(code, image):
+    im = Image.fromarray(image)
+    im.save(str(code) + ".png")
+
 
 def generateBarcode(number):
     #TODO: The barcode type will probably need to be a parameter as it is gym by bym basis4037456

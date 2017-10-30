@@ -11,6 +11,8 @@ YELLOW = 13
 RED = 19
 GREEN = 26
 
+# Lights tutorial
+# http://lowvoltagelabs.com/products/pi-traffic/
 
 GPIO.setmode(GPIO.BCM)
 #chan_list = [9, 10, 11]
