@@ -31,7 +31,7 @@ BUTTON_4 = 11
 GREEN = 26
 YELLOW = 13
 RED = 19
- 
+
 known_face_encodings = None
 known_names = None
 
@@ -236,12 +236,9 @@ def button3Handler(sender):
     #dispatcher.connect( handle_event, signal=SIGNAL, sender=dispatcher.Any )
     raise Exception('Button 3 was pressed')
 
-
-#TODO: Test this
 def saveImage(code, image):
     im = Image.fromarray(image)
-    im.save(str(code) + ".png")
-
+    im.save("../database/" + str(code) + ".png")
 
 def generateBarcode(number):
     #TODO: The barcode type will probably need to be a parameter as it is gym by bym basis4037456
