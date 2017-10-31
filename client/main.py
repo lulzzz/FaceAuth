@@ -252,6 +252,7 @@ def generateBarcode(number):
 
 
 def scanForBarcode():
+    dispatcher.connect(button3Handler, signal='Button 3', sender=dispatcher.Any)
     scan = input('')
     numerics = re.sub("[^[0-9]", "", scan)
     print(scan)
