@@ -39,7 +39,6 @@ camera = None
 dispatcher = None
 db = None
 User = None
-SIGNAL = None
 
 def main():
     #Setup
@@ -205,7 +204,7 @@ def newUser():
     output = np.empty((240, 320, 3), dtype=np.uint8)
     print2("Adding a new user")
     try:
-        dispatcher.connect(button3Handler, signal=SIGNAL, sender=dispatcher.Any)
+        dispatcher.connect(button3Handler, signal='Button 3', sender=dispatcher.Any)
         code = scanForBarcode()
         if code != -1:
             blink(YELLOW, 1)
