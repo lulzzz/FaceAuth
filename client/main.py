@@ -36,7 +36,6 @@ known_face_encodings = None
 known_names = None
 
 camera = None
-dispatcher = None
 db = None
 User = None
 
