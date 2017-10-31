@@ -39,6 +39,7 @@ camera = None
 dispatcher = None
 db = None
 User = None
+SIGNAL = None
 
 def main():
     #Setup
@@ -140,6 +141,7 @@ def main():
 def train(ip = 0):
     print2("Start training")
     global dispatcher
+    global signal
     global known_names
     global known_face_encodings
     if ip == 0:
@@ -203,6 +205,7 @@ def newUser():
     output = np.empty((240, 320, 3), dtype=np.uint8)
     print2("Adding a new user")
     try:
+        dispatcher.connect(button3Handler, signal=SIGNAL, sender=dispatcher.Any)
         code = scanForBarcode()
         if code != -1:
             blink(YELLOW, 1)
