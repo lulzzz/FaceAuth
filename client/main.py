@@ -36,7 +36,7 @@ known_face_encodings = None
 known_names = None
 
 camera = None
-
+dispatcher = None
 db = None
 User = None
 
@@ -84,11 +84,9 @@ def main():
             if GPIO.input(BUTTON_2):
                 deleteUser()
             if GPIO.input(BUTTON_3):
-                #Todo: implement event listener
                 dispatcher.send(signal=SIGNAL, sender=None)
                 print2("Cancelling action")
-            if GPIO.input(BUTTON_4):
-                print2("Cancel button for add / remove user?")
+            if GPIO.input(BUTTON_4):#Shut down?
                 print2("Restting db")
 
             #If buttons 3 + 4 then reset device
@@ -141,6 +139,7 @@ def main():
 #
 def train(ip = 0):
     print2("Start training")
+    global dispatcher
     global known_names
     global known_face_encodings
     if ip == 0:
