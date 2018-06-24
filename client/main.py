@@ -135,7 +135,6 @@ def main():
             #output.truncate(0)
 
 # Param: IP, if null then look locally
-#
 def train(ip = 0):
     print2("Start training")
     global dispatcher
@@ -362,32 +361,10 @@ def print2(message):
 
 
 def resetDatabase():
-    #Might cause an issue if the file is referenced somewhere else
     os.remove('db.json')
     train()
 
 def resetPi():
-    #might be os.system('sudo shutdown -r now')
     os.system('sudo reboot -r now')
 
-
-# TODO: Delete this in the future, no longer useful
-# def getEncodingFromDB2(id):
-#     #Right now it's one massive string, need to break into individual components of float, split by comma
-#     element = db.search(User.Id == str(id))
-#
-#     encoding = element[0].get('Encoding')
-#     #non_dec = re.compile(r'[^\d\s.]+')
-#     non_dec = re.compile(r'[^-?\d\s.]+')
-#     print2(type(encoding))
-#     print2(encoding)
-#     result = non_dec.sub('', encoding)
-#     #print2("Start of Get Encoding")
-#     print2("regex")
-#     print2(result)
-#     result2 = result.rstrip('\n')
-#     result3 = result2.split(' ')
-#     result4 = cleanEncodingList(result3)
-#     result5 = np.asarray(result4) # To NP array
-#     return result5
 if  __name__ =='__main__':main()

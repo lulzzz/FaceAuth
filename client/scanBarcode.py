@@ -3,7 +3,7 @@ import sys
 import requests
 import json
 
-api_key = "6D726577C81578A6907D95A5D431CF8D" #https://upcdatabase.org/
+api_key = "INSERTAPIKEYHERE" #https://upcdatabase.org/
 
 def barcode_reader():
     """Barcode code obtained from 'brechmos' 
