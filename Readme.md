@@ -1,5 +1,5 @@
 # Intellivendo: Face Recognition Project
-This implementation is based off of the face_recogition open source project
+This project is an open source solution to help traditional retailers compete against intelligent competators. 
 
 ## Directory structure
 - Client: Raspberry pi code
@@ -7,10 +7,9 @@ This implementation is based off of the face_recogition open source project
 - Libraries: Support for the face recognition
 - testData: Example images to be used for examples
 
-
 ## Operating
 Run the following to execute the program
-``` sudo python3 main.py ```
+``` sudo python3 client/main.py ```
 Sudo is required for the barcode scanner to work.
 
 ## Hardware required
@@ -23,3 +22,8 @@ Sudo is required for the barcode scanner to work.
 - LED Display - (https://www.tinydeal.com/5-inch-lcd-hdmi-touch-screen-800-x-480-for-raspberry-pi-3-model-b-p-164014.html)
 - SD Card (https://www.amazon.com/gp/product/B0143RT8OY)
 - Pi wires (https://www.amazon.com/gp/product/B01LZF1ZSZ/)
+
+## Libraries
+- https://github.com/ageitgey/face_recognition
+- TinyDB
+- 

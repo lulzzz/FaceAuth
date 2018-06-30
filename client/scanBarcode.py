@@ -3,6 +3,7 @@ import sys
 import requests
 import json
 
+
 api_key = "INSERTAPIKEYHERE" #https://upcdatabase.org/
 
 def barcode_reader():
