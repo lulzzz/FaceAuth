@@ -26,4 +26,4 @@ Sudo is required for the barcode scanner to work.
 ## Libraries
 - https://github.com/ageitgey/face_recognition
 - TinyDB
-- 
+- barcode (https://pypi.org/project/python-barcode/)
