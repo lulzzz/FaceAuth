@@ -1,5 +1,5 @@
 # Intellivendo: Face Recognition Project
-This project is an open source solution to help traditional retailers compete against intelligent competators. 
+This project is an open source solution to help traditional retailers compete against intelligent competitors. 
 
 ## Directory structure
 - Client: Raspberry pi code
